@@ -21,6 +21,7 @@ void causeCrash() {
 
 
 // 获取下一个0点的时间点
+
 std::chrono::system_clock::time_point getNextMidnight() {
     auto now = std::chrono::system_clock::now();
     std::time_t tt = std::chrono::system_clock::to_time_t(now);
