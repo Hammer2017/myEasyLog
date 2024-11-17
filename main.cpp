@@ -12,16 +12,6 @@ INITIALIZE_EASYLOGGINGPP
 #define ELPP_EXPERIMENTAL_ASYNC
 
 
-// void myCrashHandler(int sig) {
-//     LOG(ERROR) << "Woops! Crashed!";
-//     // FOLLOWING LINE IS ABSOLUTELY NEEDED AT THE END IN ORDER TO ABORT APPLICATION
-//     // 打印堆栈跟踪
-//     const el::base::debug::StackTrace stackTrace;
-//     LOG(ERROR) << stackTrace;
-//
-//     el::Helpers::crashAbort(sig);
-//
-// }
 
 void causeCrash() {
     LOG(ERROR) << "这是一条崩溃消息";
