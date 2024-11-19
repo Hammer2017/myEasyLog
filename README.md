@@ -1,0 +1,2 @@
+# myEasyLog
+Rewritten from easylogging++
