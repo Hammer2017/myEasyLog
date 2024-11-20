@@ -133,17 +133,23 @@ void LogHelper::rotationLoop()
             auto L = el::Loggers::getLogger(LOGGER_NAME);
             if (L == nullptr)
             {
-                MY_CUSTOM_LOGGER(ERROR) << "Oops, it is not called default!";
+                LOGGER(ERROR) << "Oops, it is not called default!";
             }
             else
             {
                 L->reconfigure();
-                auto L_default = el::Loggers::getLogger("default");
-                L_default->reconfigure();
                 previousFilenameTemp.clear();
             }
         }
     }
+}
+
+void myCrashHandler(int sig) {
+    LOGGER(ERROR) << "Woops! Crashed!";
+    // FOLLOWING LINE IS OPTIONAL
+    el::Helpers::logCrashReason(sig, true, el::Level::Fatal, LOGGER_NAME);
+    // FOLLOWING LINE IS ABSOLUTELY NEEDED AT THE END IN ORDER TO ABORT APPLICATION
+    el::Helpers::crashAbort(sig);
 }
 
 /**
@@ -153,20 +159,22 @@ void LogHelper::rotationLoop()
 void LogHelper::init_param()
 {
     el::Loggers::addFlag(el::LoggingFlag::DisableApplicationAbortOnFatalLog);
-    el::Loggers::addFlag(el::LoggingFlag::MultiLoggerSupport);
+    //el::Loggers::addFlag(el::LoggingFlag::MultiLoggerSupport);
     const el::Configurations conf("logging.conf");
-    const el::Configurations conf_default("logging_default.conf");
+    //const el::Configurations conf_default("logging_default.conf");
     el::Logger* fileLogger = el::Loggers::getLogger(LOGGER_NAME);
-    el::Loggers::reconfigureLogger("default", conf_default);
+    //el::Loggers::reconfigureLogger("default", conf_default);
     el::Loggers::reconfigureLogger(fileLogger, conf);
 
     el::Helpers::installPreRollOutCallback(&LogHelper::rolloutHandler);
     // 启用严格日志文件大小检查
     el::Loggers::addFlag(el::LoggingFlag::StrictLogFileSizeCheck);
 
-    MY_CUSTOM_LOGGER(INFO) << "begin TEST!";
-    MY_CUSTOM_LOGGER(ERROR) << "这是一条测试消息";
-    MY_CUSTOM_LOGGER(INFO) << "*************This is how we do it.";
+    el::Helpers::setCrashHandler(myCrashHandler);
+
+    LOGGER(INFO) << "begin TEST!";
+    LOGGER(ERROR) << "这是一条测试消息";
+    LOGGER(INFO) << "*************This is how we do it.";
 }
 
 /**

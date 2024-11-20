@@ -13,7 +13,7 @@
 #include "easylogging++.h"
 
 #define LOGGER_NAME "tasknode"
-#define MY_CUSTOM_LOGGER(LEVEL) CLOG(LEVEL, "default", LOGGER_NAME)
+#define LOGGER(LEVEL) CLOG(LEVEL, LOGGER_NAME)
 #define ELPP_THREAD_SAFE
 #define ELPP_NO_DEFAULT_LOG_FILE
 #define ELPP_EXPERIMENTAL_ASYNC
