@@ -6,7 +6,7 @@ INITIALIZE_EASYLOGGINGPP
 
 
 void causeCrash() {
-    LOGGER(INFO) << "这是一条崩溃消息";
+    LOGS_INFO("tasknode") << "这是一条崩溃消息";
     int* ptr = nullptr;
     *ptr = 42;  // 导致崩溃
 }
@@ -15,20 +15,22 @@ void causeCrash() {
 
 int main()
 {
+#define LOGGER_NAME "tasknode"
     // 启动日志
     LogHelper logHelper;
+    LogHelper::setLoggerName(LOGGER_NAME);
     LogHelper::init_param();
     logHelper.startRotationThread();
 
 
     for (int i = 0; i < 600; ++i)
     {
-        LOGGER(INFO) << "Test " << i;
+        LOGS_INFO(LOGGER_NAME) << "Test " << i;
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
     causeCrash();
 
-    LOGGER(INFO) << "end TEST!";
+    LOGS_INFO(LOGGER_NAME) << "end TEST!";
     return 0;
 }

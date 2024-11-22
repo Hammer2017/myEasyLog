@@ -10,6 +10,7 @@
 
 
 std::string LogHelper::previousFilenameTemp;
+std::string LogHelper::m_loggerName;
 
 /**
  * brief: 构造函数
@@ -35,6 +36,11 @@ LogHelper::~LogHelper()
     if (rotationThread && rotationThread->joinable()) {
         rotationThread->join();
     }
+}
+
+void LogHelper::setLoggerName(const std::string& loggerName)
+{
+    m_loggerName = loggerName;
 }
 
 void LogHelper::startRotationThread()
@@ -65,7 +71,7 @@ std::chrono::system_clock::time_point LogHelper::getNextMidnight()
 void LogHelper::rolloutHandler(const char* filename, std::size_t size) {
     // SHOULD NOT LOG ANYTHING HERE BECAUSE LOG FILE IS CLOSED!
     std::cout << "************** Rolling out [" << filename << "] because it reached [" << size << " bytes]" << std::endl;
-    auto L = el::Loggers::getLogger(LOGGER_NAME);
+    auto L = el::Loggers::getLogger(m_loggerName);
     if(L == nullptr)
     {
         std::cout << "Oops, it is not called default!" << std::endl;
@@ -130,10 +136,10 @@ void LogHelper::rotationLoop()
             {
                 break; // 收到停止信号，退出循环
             }
-            auto L = el::Loggers::getLogger(LOGGER_NAME);
+            auto L = el::Loggers::getLogger(m_loggerName);
             if (L == nullptr)
             {
-                LOGGER(ERROR) << "Oops, it is not called default!";
+                LOGS_ERROR(m_loggerName.c_str()) << "Oops, it is not called default!";
             }
             else
             {
@@ -144,10 +150,10 @@ void LogHelper::rotationLoop()
     }
 }
 
-void myCrashHandler(int sig) {
-    LOGGER(ERROR) << "Woops! Crashed!";
+void LogHelper::myCrashHandler(int sig) {
+    //LOGGER(ERROR) << "Woops! Crashed!";
     // FOLLOWING LINE IS OPTIONAL
-    el::Helpers::logCrashReason(sig, true, el::Level::Fatal, LOGGER_NAME);
+    el::Helpers::logCrashReason(sig, true, el::Level::Fatal, LogHelper::m_loggerName.c_str());
     // FOLLOWING LINE IS ABSOLUTELY NEEDED AT THE END IN ORDER TO ABORT APPLICATION
     el::Helpers::crashAbort(sig);
 }
@@ -162,7 +168,7 @@ void LogHelper::init_param()
     //el::Loggers::addFlag(el::LoggingFlag::MultiLoggerSupport);
     const el::Configurations conf("logging.conf");
     //const el::Configurations conf_default("logging_default.conf");
-    el::Logger* fileLogger = el::Loggers::getLogger(LOGGER_NAME);
+    el::Logger* fileLogger = el::Loggers::getLogger(m_loggerName);
     //el::Loggers::reconfigureLogger("default", conf_default);
     el::Loggers::reconfigureLogger(fileLogger, conf);
 
@@ -170,11 +176,11 @@ void LogHelper::init_param()
     // 启用严格日志文件大小检查
     el::Loggers::addFlag(el::LoggingFlag::StrictLogFileSizeCheck);
 
-    el::Helpers::setCrashHandler(myCrashHandler);
+    el::Helpers::setCrashHandler(&LogHelper::myCrashHandler);
 
-    LOGGER(INFO) << "begin TEST!";
-    LOGGER(ERROR) << "这是一条测试消息";
-    LOGGER(INFO) << "*************This is how we do it.";
+    LOGS_INFO(m_loggerName.c_str()) << "begin TEST!";
+    //LOGGER(ERROR) << "这是一条测试消息";
+    LOGS_INFO(m_loggerName.c_str()) << "*************This is how we do it.";
 }
 
 /**
